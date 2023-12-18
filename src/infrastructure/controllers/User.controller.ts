@@ -11,15 +11,15 @@ export class UserController {
 
 	async createUser(req: Request, res: Response, next: NextFunction) {
 		try {
-			const data: IUser = req.body;
-			await this.userUsecase.createUser(data);
-			res
-				.status(HTTP_STATUS_CODE.CREATED)
-				.json({
-					message: RESPONSE_MESSAGES.USER_CREATED,
-					error: null,
-					body: null,
-				});
+			const data: IUser = JSON.parse(req.body.body);
+			const image = req.file?.buffer;
+      const imageExtension = req.file?.originalname.split(".")[1];
+			await this.userUsecase.createUser(data, image, imageExtension as string);
+			res.status(HTTP_STATUS_CODE.CREATED).json({
+				message: RESPONSE_MESSAGES.USER_CREATED,
+				error: null,
+				body: null,
+			});
 		} catch (error) {
 			next(error);
 		}
@@ -29,22 +29,18 @@ export class UserController {
 		try {
 			const token = req.headers.authorization as string;
 			if (!token) {
-				res
-					.status(HTTP_STATUS_CODE.UNAUTHORIZED)
-					.json({
-						message: RESPONSE_MESSAGES.TOKEN_NOT_FOUND,
-						error: null,
-						body: null,
-					});
+				res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
+					message: RESPONSE_MESSAGES.TOKEN_NOT_FOUND,
+					error: null,
+					body: null,
+				});
 			}
 			const user = await this.userUsecase.getUser(token);
-			res
-				.status(HTTP_STATUS_CODE.OK)
-				.json({
-					message: RESPONSE_MESSAGES.OPERATION_SUCCESS,
-					error: null,
-					body: user,
-				});
+			res.status(HTTP_STATUS_CODE.OK).json({
+				message: RESPONSE_MESSAGES.OPERATION_SUCCESS,
+				error: null,
+				body: user,
+			});
 		} catch (error) {
 			next(error);
 		}
@@ -54,23 +50,19 @@ export class UserController {
 		try {
 			const token = req.headers.authorization as string;
 			if (!token) {
-				res
-					.status(HTTP_STATUS_CODE.UNAUTHORIZED)
-					.json({
-						message: RESPONSE_MESSAGES.TOKEN_NOT_FOUND,
-						error: null,
-						body: null,
-					});
-			}
-			const data: IUser = req.body;
-			await this.userUsecase.updateUser(token, data);
-			res
-				.status(HTTP_STATUS_CODE.OK)
-				.json({
-					message: RESPONSE_MESSAGES.OPERATION_SUCCESS,
+				res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
+					message: RESPONSE_MESSAGES.TOKEN_NOT_FOUND,
 					error: null,
 					body: null,
 				});
+			}
+			const data: IUser = req.body;
+			await this.userUsecase.updateUser(token, data);
+			res.status(HTTP_STATUS_CODE.OK).json({
+				message: RESPONSE_MESSAGES.OPERATION_SUCCESS,
+				error: null,
+				body: null,
+			});
 		} catch (error) {
 			next(error);
 		}
@@ -80,22 +72,18 @@ export class UserController {
 		try {
 			const token = req.headers.authorization as string;
 			if (!token) {
-				res
-					.status(HTTP_STATUS_CODE.UNAUTHORIZED)
-					.json({
-						message: RESPONSE_MESSAGES.TOKEN_NOT_FOUND,
-						error: null,
-						body: null,
-					});
-			}
-			await this.userUsecase.deleteUser(token);
-			res
-				.status(HTTP_STATUS_CODE.OK)
-				.json({
-					message: RESPONSE_MESSAGES.OPERATION_SUCCESS,
+				res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
+					message: RESPONSE_MESSAGES.TOKEN_NOT_FOUND,
 					error: null,
 					body: null,
 				});
+			}
+			await this.userUsecase.deleteUser(token);
+			res.status(HTTP_STATUS_CODE.OK).json({
+				message: RESPONSE_MESSAGES.OPERATION_SUCCESS,
+				error: null,
+				body: null,
+			});
 		} catch (error) {
 			next(error);
 		}
@@ -105,13 +93,11 @@ export class UserController {
 		try {
 			const data: IUser = req.body;
 			const token = await this.userUsecase.login(data);
-			res
-				.status(HTTP_STATUS_CODE.OK)
-				.json({
-					message: RESPONSE_MESSAGES.OPERATION_SUCCESS,
-					error: null,
-					body: { token: token },
-				});
+			res.status(HTTP_STATUS_CODE.OK).json({
+				message: RESPONSE_MESSAGES.OPERATION_SUCCESS,
+				error: null,
+				body: { token: token },
+			});
 		} catch (error) {
 			next(error);
 		}

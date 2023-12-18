@@ -1,19 +1,33 @@
 import { IUser as IUserDto } from "../../domain/dto/User.dto";
 import { IUserRepository } from "../../domain/repositories/User.repository";
+import { IUserImagesRepository } from "../../domain/repositories/UserImages.repository";
 import { IUser as IUserModel } from "../../domain/repositories/models/User.model";
+import { config } from "../core/config";
 import { AuthHelper } from "../core/utils/Auth.helper";
 import { RESPONSE_MESSAGES } from "../core/utils/Constants";
 import { UserMapper } from "../mappers/User.mapper";
 
 export class UserUseCase {
-	constructor(private readonly userRepository: IUserRepository) {}
+	constructor(
+		private readonly userRepository: IUserRepository,
+		private readonly userImagesRepository: IUserImagesRepository
+	) {}
 
-	async createUser(user: IUserDto) {
+	async createUser(user: IUserDto, image: any, imageExtension: string) {
 		const userFound = await this.userRepository.getUserByEmail(
 			user.email as string
 		);
 		if (userFound) {
 			throw new Error(RESPONSE_MESSAGES.USER_ALREADY_EXISTS);
+		}
+
+		if (image) {
+			const key = `${user.email}.${imageExtension}`;
+			const imageUploaded = await this.userImagesRepository.uploadImage(
+				image,
+				key
+			);
+			user.imageUrl = `${config.AWS_S3.BUCKET_URL}${key}`
 		}
 
 		const passwordEncrypted = await AuthHelper.encryptPassword(
@@ -45,6 +59,14 @@ export class UserUseCase {
 
 	async deleteUser(token: string): Promise<void> {
 		const jwtDecoded = AuthHelper.decodeToken(token);
+		const user = await this.userRepository.getUserById(jwtDecoded.id);
+		if (!user) {
+			throw new Error(RESPONSE_MESSAGES.USER_NOT_FOUND);
+		}
+		const key = user.user_image?.split(config.AWS_S3.BUCKET_URL)[1];
+		if (key) {
+			await this.userImagesRepository.deleteImage(key);
+		}
 		await this.userRepository.deleteUser(jwtDecoded.id);
 	}
 

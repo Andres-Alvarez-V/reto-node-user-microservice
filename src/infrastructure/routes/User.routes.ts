@@ -1,12 +1,17 @@
+import multer from "multer";
 import { Router } from "express";
 import { ENDPOINTS } from "../../application/core/utils/Constants";
 import { userController } from "../dependencies";
 
 const router = Router();
 
+const storage = multer.memoryStorage(); // Almacenamiento en memoria
+const upload = multer({ storage });
+
 
 router.post(
 	ENDPOINTS.USERS.CREATE,
+	upload.single("image"),	
 	userController.createUser.bind(userController)
 );
 
