@@ -50,7 +50,7 @@ export enum HTTP_STATUS_CODE {
 }
 
 export const enum RESPONSE_MESSAGES {
-  REPOSITORY_ERROR = 'Internal server Error',
+  INTERNAL_ERROR = 'Internal server Error',
   BAD_REQUEST = 'Bad Request Error',
   USER_NOT_FOUND = 'User not found',
   PASSWORD_NOT_ALLOWED = 'Update password not allowed',
@@ -71,6 +71,7 @@ export const enum DEFAULT_VALUES {
   NODE_ENV_LOCAL = 'LOCAL',
   NODE_ENV_DEV = 'DEV',
   NODE_ENV_PROD = 'PROD',
+  PINO_LOG_LEVEL='info',
   APP_PORT = 3000,
 }
 

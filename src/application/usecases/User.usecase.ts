@@ -4,7 +4,8 @@ import { IUserImagesRepository } from "../../domain/repositories/UserImages.repo
 import { IUser as IUserModel } from "../../domain/repositories/models/User.model";
 import { config } from "../core/config";
 import { AuthHelper } from "../core/utils/Auth.helper";
-import { RESPONSE_MESSAGES } from "../core/utils/Constants";
+import { RESPONSE_MESSAGES, HTTP_STATUS_CODE } from '../core/utils/Constants';
+import { CustomError } from "../core/utils/CustomError.helper";
 import { UserMapper } from "../mappers/User.mapper";
 
 export class UserUseCase {
@@ -18,12 +19,12 @@ export class UserUseCase {
 			user.email as string
 		);
 		if (userFound) {
-			throw new Error(RESPONSE_MESSAGES.USER_ALREADY_EXISTS);
+			throw new CustomError(RESPONSE_MESSAGES.USER_ALREADY_EXISTS, HTTP_STATUS_CODE.CONFLICT);
 		}
 
 		if (image) {
 			const key = `${user.email}.${imageExtension}`;
-			const imageUploaded = await this.userImagesRepository.uploadImage(
+			await this.userImagesRepository.uploadImage(
 				image,
 				key
 			);
@@ -43,7 +44,7 @@ export class UserUseCase {
 		const jwtDecoded = AuthHelper.decodeToken(token);
 		const user = await this.userRepository.getUserById(jwtDecoded.id);
 		if (!user) {
-			throw new Error(RESPONSE_MESSAGES.USER_NOT_FOUND);
+			throw new CustomError(RESPONSE_MESSAGES.USER_NOT_FOUND, HTTP_STATUS_CODE.NOT_FOUND);
 		}
 		return UserMapper.toDomain(user);
 	}
@@ -52,7 +53,7 @@ export class UserUseCase {
 		const jwtDecoded = AuthHelper.decodeToken(token);
 		const userModel = UserMapper.toPersistence(user);
 		if (userModel.password) {
-			throw new Error(RESPONSE_MESSAGES.PASSWORD_NOT_ALLOWED);
+			throw new CustomError(RESPONSE_MESSAGES.PASSWORD_NOT_ALLOWED, HTTP_STATUS_CODE.BAD_REQUEST);
 		}
 		await this.userRepository.updateUser(jwtDecoded.id, user);
 	}
@@ -61,7 +62,7 @@ export class UserUseCase {
 		const jwtDecoded = AuthHelper.decodeToken(token);
 		const user = await this.userRepository.getUserById(jwtDecoded.id);
 		if (!user) {
-			throw new Error(RESPONSE_MESSAGES.USER_NOT_FOUND);
+			throw new CustomError(RESPONSE_MESSAGES.USER_NOT_FOUND, HTTP_STATUS_CODE.NOT_FOUND);
 		}
 		const key = user.user_image?.split(config.AWS_S3.BUCKET_URL)[1];
 		if (key) {
@@ -75,14 +76,14 @@ export class UserUseCase {
 			user.email as string
 		);
 		if (!userFound) {
-			throw new Error(RESPONSE_MESSAGES.USER_NOT_FOUND);
+			throw new CustomError(RESPONSE_MESSAGES.USER_NOT_FOUND, HTTP_STATUS_CODE.NOT_FOUND);
 		}
 		const passwordMatch = await AuthHelper.comparePassword(
 			user.password as string,
 			userFound.password as string
 		);
 		if (!passwordMatch) {
-			throw new Error(RESPONSE_MESSAGES.PASSWORD_NOT_MATCH);
+			throw new CustomError(RESPONSE_MESSAGES.PASSWORD_NOT_MATCH, HTTP_STATUS_CODE.UNAUTHORIZED);
 		}
 		return AuthHelper.generateToken(userFound.id as number);
 	}

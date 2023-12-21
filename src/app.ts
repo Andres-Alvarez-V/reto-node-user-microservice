@@ -3,10 +3,9 @@ import cors from "cors";
 import express, { Application } from "express";
 import { config } from "./application/core/config";
 import routes from "./infrastructure/routes";
-import {
-	errorHandler,
-	logErrors,
-} from "./infrastructure/middleware/Error.handler";
+import { errorHandler } from "./infrastructure/middleware/Error.handler";
+import { Logger } from "./application/core/utils/Logger.helper";
+import { RESPONSE_MESSAGES } from "./application/core/utils/Constants";
 
 export class App {
 	private app: Application;
@@ -16,7 +15,6 @@ export class App {
 		this.app.use(cors());
 		this.app.use(express.json());
 		routes(this.app);
-		this.app.use(logErrors);
 		this.app.use(errorHandler);
 	}
 
@@ -27,12 +25,12 @@ export class App {
 	public async run() {
 		try {
 			this.app.listen(config.APP_PORT, () => {
-				console.log(
+				Logger.info(
 					`[APP] - Application is running on port ${config.APP_PORT}`
 				);
 			});
 		} catch (error) {
-			console.error(error);
+			Logger.error(RESPONSE_MESSAGES.INTERNAL_ERROR, error);
 		}
 	}
 }
