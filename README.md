@@ -434,3 +434,24 @@ npm run dev
 
 Debemos poder ver en la consola como se inicia la aplicacion y luego haciendo uso de la ip publica nos podremos conectar a la aplicacion.
 
+
+### Utilizacion de PM2
+
+PM2 es un administrador de procesos para aplicaciones Node.js que simplifica la gestión y el mantenimiento de aplicaciones en entornos de producción. PM2 proporciona un conjunto de características que ayudan a administrar y mantener las aplicaciones en producción. Estas características incluyen:
+* Inicio de la aplicación en el arranque del sistema.
+* Reinicio de la aplicación en caso de error.
+* Monitoreo de la aplicación y el sistema.
+* Registro de salida de la aplicación en un archivo.
+* Administración y visualización de la aplicación en un panel de control.
+
+Entre muchas otras caracteristicas. Para instalar PM2 en la instancia de EC2 debemos ejecutar los siguientes comandos:
+```bash
+sudo npm install pm2@latest -g
+``` 
+Esto nos instalara PM2 de manera global en la instancia de EC2. Ahora debemos ejecutar el siguiente comando para que compilar la aplicacion y luego ejecutarla con PM2.
+```bash
+npm run build
+pm2 start dist/main.js
+```
+
+Ahora puedes guiarte de la documentacion para hacer uso de PM2. [Documentacion PM2](https://pm2.keymetrics.io/docs/usage/pm2-doc-single-page/)  

@@ -1,8 +1,7 @@
 import pino from "pino";
 import { config } from "../config";
 
-export class Logger {
-  private static instance: Logger;
+class Logger {
   private logger: pino.Logger;
 
   constructor() {
@@ -19,21 +18,17 @@ export class Logger {
     });
   }
 
-  private static getInstance(): Logger {
-    if (!Logger.instance) {
-      Logger.instance = new Logger();
-    }
-
-    return Logger.instance;
+  
+  info(message: string, ...args: any[]) {
+    this.logger.info(message, ...args);
   }
 
-  static info(message: string, ...args: any[]) {
-    Logger.getInstance().logger.info(message, ...args);
-  }
-
-  static error(message: string, ...args: any[]) {
-    Logger.getInstance().logger.error({
+  error(message: string, ...args: any[]) {
+    this.logger.error({
       error: args
     }, message);
   }
 }
+
+
+export const logger = new Logger();

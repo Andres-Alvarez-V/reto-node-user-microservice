@@ -4,7 +4,7 @@ import express, { Application } from "express";
 import { config } from "./application/core/config";
 import routes from "./infrastructure/routes";
 import { errorHandler } from "./infrastructure/middleware/Error.handler";
-import { Logger } from "./application/core/utils/Logger.helper";
+import { logger } from "./application/core/utils/Logger.helper";
 import { RESPONSE_MESSAGES } from "./application/core/utils/Constants";
 
 export class App {
@@ -25,12 +25,12 @@ export class App {
 	public async run() {
 		try {
 			this.app.listen(config.APP_PORT, () => {
-				Logger.info(
+				logger.info(
 					`[APP] - Application is running on port ${config.APP_PORT}`
 				);
 			});
 		} catch (error) {
-			Logger.error(RESPONSE_MESSAGES.INTERNAL_ERROR, error);
+			logger.error(RESPONSE_MESSAGES.INTERNAL_ERROR, error);
 		}
 	}
 }
